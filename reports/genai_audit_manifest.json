@@ -1,0 +1,99 @@
+{
+  "gateway_name": "aws-genai-security-gateway-prod",
+  "audit_timestamp": "2026-10-29T14:14:28.157474+00:00",
+  "governance_frameworks": [
+    "OWASP-Top-10-for-LLMs-2025",
+    "NIST-AI-RMF-1.0",
+    "EU-AI-Act-Article-15",
+    "ISO-42001-AI-Management"
+  ],
+  "metrics": {
+    "total_inferences_screened": 4,
+    "clean_inferences_allowed": 1,
+    "pii_masked_inferences": 1,
+    "adversarial_jailbreaks_blocked": 2,
+    "threat_mitigation_rate_pct": 100.0
+  },
+  "inspection_details": [
+    {
+      "audit_id": "aud-39e83723f2ed",
+      "model_id": "anthropic.claude-3-sonnet",
+      "verdict": "ALLOW",
+      "findings_count": 0,
+      "pii_masked_count": 0,
+      "latency_ms": 0.1,
+      "findings": []
+    },
+    {
+      "audit_id": "aud-48215eceb55c",
+      "model_id": "anthropic.claude-3-sonnet",
+      "verdict": "MASK_AND_ALLOW",
+      "findings_count": 2,
+      "pii_masked_count": 2,
+      "latency_ms": 0.1,
+      "findings": [
+        {
+          "category": "LLM02_SENSITIVE_DATA_LEAK",
+          "severity": "HIGH",
+          "rule_name": "RULE_PII_US_SSN",
+          "description": "Detected sensitive PII_US_SSN in prompt payload.",
+          "matched_pattern": "123-****",
+          "remediation_action": "Tokenized to placeholder [REDACTED_PII_SSN]."
+        },
+        {
+          "category": "LLM02_SENSITIVE_DATA_LEAK",
+          "severity": "CRITICAL",
+          "rule_name": "RULE_CREDENTIAL_AWS_ACCESS_KEY",
+          "description": "Detected sensitive CREDENTIAL_AWS_ACCESS_KEY in prompt payload.",
+          "matched_pattern": "AKIA****",
+          "remediation_action": "Tokenized to placeholder [REDACTED_AWS_KEY]."
+        }
+      ]
+    },
+    {
+      "audit_id": "aud-74ff7697d742",
+      "model_id": "anthropic.claude-3-sonnet",
+      "verdict": "BLOCK",
+      "findings_count": 2,
+      "pii_masked_count": 0,
+      "latency_ms": 0.02,
+      "findings": [
+        {
+          "category": "LLM01_PROMPT_INJECTION",
+          "severity": "CRITICAL",
+          "rule_name": "DIRECT_INSTRUCTION_OVERRIDE",
+          "description": "Attempts to wipe system guardrails and instruction boundaries.",
+          "matched_pattern": "Ignore all previous instructions",
+          "remediation_action": "Immediate request termination (HTTP 403 Forbidden)."
+        },
+        {
+          "category": "LLM01_PROMPT_INJECTION",
+          "severity": "CRITICAL",
+          "rule_name": "SYSTEM_PROMPT_EXFILTRATION",
+          "description": "Attempts to extract proprietary system prompts and confidential configuration.",
+          "matched_pattern": "reveal the system prompt",
+          "remediation_action": "Immediate request termination (HTTP 403 Forbidden)."
+        }
+      ]
+    },
+    {
+      "audit_id": "aud-b8f4a02f575a",
+      "model_id": "anthropic.claude-3-sonnet",
+      "verdict": "BLOCK",
+      "findings_count": 1,
+      "pii_masked_count": 0,
+      "latency_ms": 0.02,
+      "findings": [
+        {
+          "category": "LLM04_MODEL_DOS_TOKEN_SPIKE",
+          "severity": "HIGH",
+          "rule_name": "LLM_DOS_TOKEN_SPIKE_EXCEEDED",
+          "description": "Requested 8192 tokens exceeds single-request ceiling of 4096.",
+          "matched_pattern": "max_tokens=8192",
+          "remediation_action": "Reject request or truncate to maximum authorized token window."
+        }
+      ]
+    }
+  ],
+  "sha256_checksum": "876f4755d29226e4f1c2e9eb2f1c5277da17ef797d5f9f4ee8d413c7b59a6b61"
+}
